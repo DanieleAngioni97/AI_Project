@@ -42,8 +42,23 @@ def read_pgm(filename, byteorder='>'):
 
 if __name__ == "__main__":
     from matplotlib import pyplot
-    image = read_pgm("images/pos00000.pgm", byteorder='<')
+    image = read_pgm("DaimlerBenchmark/Data/TrainingData/NonPedestrians/neg00000.pgm", byteorder='<')
     pyplot.imshow(image, pyplot.cm.gray)
     pyplot.show()
 
 
+    """new_shape=(100,100)
+    new_image = numpy.resize(image, new_shape)
+    pyplot.imshow(new_image, pyplot.cm.gray)
+    pyplot.show()"""
+
+    from PIL import Image
+
+    basewidth = 30
+    img = Image.open("DaimlerBenchmark/Data/TrainingData/NonPedestrians/neg00000.pgm")
+    wpercent = (basewidth / float(img.size[0]))
+    hsize = int((float(img.size[1]) * float(wpercent)))
+    img = img.resize((basewidth, hsize), Image.ANTIALIAS)
+    #img.save('resized_image.jpg')
+    pyplot.imshow(img, pyplot.cm.gray)
+    pyplot.show()
