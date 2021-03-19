@@ -16,6 +16,7 @@
 
 import re
 import numpy
+from PIL import Image
 
 def read_pgm(filename, byteorder='>'):
     """Return image data from a raw PGM file as numpy array.
@@ -40,25 +41,52 @@ def read_pgm(filename, byteorder='>'):
                             ).reshape((int(height), int(width)))
 
 
+def read_pgm_reshape(filename, new_shape):
+    width = new_shape[0]
+    height = new_shape[1]
+
+    image = Image.open(filename)
+    resize_image = image.resize((width, height), Image.ANTIALIAS)
+    return resize_image
+
+
 if __name__ == "__main__":
     from matplotlib import pyplot
     image = read_pgm("DaimlerBenchmark/Data/TrainingData/NonPedestrians/neg00000.pgm", byteorder='<')
     pyplot.imshow(image, pyplot.cm.gray)
     pyplot.show()
-
+    
 
     """new_shape=(100,100)
     new_image = numpy.resize(image, new_shape)
     pyplot.imshow(new_image, pyplot.cm.gray)
     pyplot.show()"""
 
-    from PIL import Image
+    """#basewidth = 30
 
-    basewidth = 30
     img = Image.open("DaimlerBenchmark/Data/TrainingData/NonPedestrians/neg00000.pgm")
-    wpercent = (basewidth / float(img.size[0]))
-    hsize = int((float(img.size[1]) * float(wpercent)))
-    img = img.resize((basewidth, hsize), Image.ANTIALIAS)
+    #wpercent = (basewidth / float(img.size[0]))
+    #hsize = int((float(img.size[1]) * float(wpercent)))
+    #img = img.resize((basewidth, hsize), Image.ANTIALIAS)
+    width = 30
+    height = 30
+    img = img.resize((width, height), Image.ANTIALIAS)
     #img.save('resized_image.jpg')
     pyplot.imshow(img, pyplot.cm.gray)
+    pyplot.show()
+
+
+    from numpy import asarray
+
+    # convert image to numpy array
+    data = asarray(img)
+    print(type(data))
+    # summarize shape
+    print(data.shape)
+    pyplot.imshow(data, pyplot.cm.gray)
+    pyplot.show()"""
+
+    new_shape = (30, 30)
+    reshape_image = read_pgm_reshape("DaimlerBenchmark/Data/TrainingData/NonPedestrians/neg00000.pgm", new_shape)
+    pyplot.imshow(reshape_image, pyplot.cm.gray)
     pyplot.show()
