@@ -42,7 +42,7 @@ def read_pgm(filename, byteorder='>'):
 
 if __name__ == "__main__":
     from matplotlib import pyplot
-    image = read_pgm("images/pos00000.pgm", byteorder='<')
+    image = read_pgm("DaimlerBenchmark/Data/TrainingData/NonPedestrians/neg00000.pgm", byteorder='<')
     pyplot.imshow(image, pyplot.cm.gray)
     pyplot.show()
 
