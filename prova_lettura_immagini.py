@@ -52,7 +52,7 @@ def read_pgm_reshape(filename, new_shape):
 
 if __name__ == "__main__":
     from matplotlib import pyplot
-    image = read_pgm("DaimlerBenchmark/Data/TrainingData/NonPedestrians/neg00000.pgm", byteorder='<')
+    image = read_pgm("DaimlerBenchmark/1/non-ped_examples/img_00000.pgm", byteorder='<')
     pyplot.imshow(image, pyplot.cm.gray)
     pyplot.show()
     
@@ -87,6 +87,8 @@ if __name__ == "__main__":
     pyplot.show()"""
 
     new_shape = (30, 30)
-    reshape_image = read_pgm_reshape("DaimlerBenchmark/Data/TrainingData/NonPedestrians/neg00000.pgm", new_shape)
+    reshape_image = read_pgm_reshape("DaimlerBenchmark/1/non-ped_examples/img_00000.pgm", new_shape)
     pyplot.imshow(reshape_image, pyplot.cm.gray)
     pyplot.show()
+
+

@@ -32,3 +32,4 @@ venv.bak/
 devenv/
 images/*
 /DaimlerBenchmark/
+/data/
