@@ -14,10 +14,10 @@ from pedestrian_dataset import PedestrianDataset
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 dataset = PedestrianDataset(csv_file='DaimlerBenchmark/pedestrian_dataset.csv',
-                            root_dir='./')
-                            # transform=transforms.ToTensor())
+                            root_dir='./',
+                            transform=transforms.ToTensor())
 
-batch_size = 1
+batch_size = 16
 train_split = .8
 validation_split = .2
 shuffle_dataset = True
@@ -73,7 +73,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 # Train the model
 total_step = len(train_loader)
-loss_path = np.zeros(shape=(num_epochs,total_step))
+loss_path = np.zeros(shape=(num_epochs, total_step))
 for epoch in range(num_epochs):
     for i, (images, labels) in enumerate(train_loader):
         images = images.to(device)
@@ -90,8 +90,31 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
 
-        if (i+1) % 100 == 0:
+        if (i+1) % 5 == 0:
             print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
                   .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+
+plt.figure()
+plt.plot(loss_path.ravel())
+plt.title('Loss')
+plt.xlabel("iteration")
+plt.show()
+
+# Test the model
+# eval mode (batchnorm uses moving mean/var instead of mini-batch mean/var)
+model.eval()
+with torch.no_grad():
+    correct = 0
+    total = 0
+    for images, labels in test_loader:
+        images = images.to(device)
+        labels = labels.to(device)
+        outputs = model(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+    print('Test Accuracy of the model on the 10000 test images: {} %'
+          .format(100.0 * correct / total))
 
 print("")
