@@ -31,7 +31,7 @@ class PedestrianDataset(Dataset):
         return len(self.pedestrian_frame)
 
     def __getitem__(self, idx):
-        if torch.is_tensor(idx): # Returns True if idx is a PyTorch tensor
+        if torch.is_tensor(idx):    # Returns True if idx is a PyTorch tensor
             idx = idx.tolist()
 
         img_name = os.path.join(self.root_dir,
@@ -39,11 +39,13 @@ class PedestrianDataset(Dataset):
         # dataframe.iloc[start_row:end_row,start_col:end_col]
         # image = io.imread(img_name) #Load an image from file.
         image = read_pgm_reshape(img_name, self.shape)
-        label = self.pedestrian_frame.iloc[idx, 1]
-        label = np.array([label])
-        sample = {'image': image, 'label': label}
 
         if self.transform:
-            sample = self.transform(sample)
+            image = self.transform(image)
+
+        label = self.pedestrian_frame.iloc[idx, 1]
+        label = np.array(label)
+        # sample = {'image': image, 'label': label}
+        sample = (image, label)
 
         return sample
