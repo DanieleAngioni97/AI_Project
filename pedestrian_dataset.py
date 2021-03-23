@@ -14,7 +14,7 @@ from prova_lettura_immagini import read_pgm_reshape
 class PedestrianDataset(Dataset):
     """Pedestrian dataset."""
 
-    def __init__(self, csv_file, root_dir, transform=None, img_shape=(32, 32)):
+    def __init__(self, csv_file, root_dir, transform=None, shape=(32, 32)):
         """
         Args:
             csv_file (string): Path to the csv file with annotations.
@@ -25,7 +25,7 @@ class PedestrianDataset(Dataset):
         self.pedestrian_frame = pd.read_csv(csv_file)
         self.root_dir = root_dir
         self.transform = transform
-        self.shape = img_shape
+        self.shape = shape
 
     def __len__(self):
         return len(self.pedestrian_frame)
