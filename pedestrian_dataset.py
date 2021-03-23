@@ -14,7 +14,7 @@ from prova_lettura_immagini import read_pgm_reshape
 class PedestrianDataset(Dataset):
     """Pedestrian dataset."""
 
-    def __init__(self, csv_file, root_dir, transform=None, shape=(32,32)):
+    def __init__(self, csv_file, root_dir, transform=None, shape=(32, 32)):
         """
         Args:
             csv_file (string): Path to the csv file with annotations.
