@@ -5,6 +5,8 @@ from model import ConvNet
 from pedestrian_dataset import PedestrianDataset
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+model = ConvNet().to(device)
+optimizer = torch.optim.Adam(model.parameters())
 
 model = ConvNet().to(device)
 
@@ -12,7 +14,7 @@ dataset = PedestrianDataset(csv_file='DaimlerBenchmark/pedestrian_dataset.csv',
                             root_dir='./',
                             transform=transforms.ToTensor())
 
-_, _, test_loader = dataset.loader(batch_size=64,
+_, _, test_loader = dataset.loader(batch_size=1024,
                                    train_split=.8,
                                    validation_split=.2,
                                    shuffle_dataset=True,
