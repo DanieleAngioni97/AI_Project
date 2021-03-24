@@ -17,7 +17,7 @@ dataset = PedestrianDataset(csv_file='DaimlerBenchmark/pedestrian_dataset.csv',
                             root_dir='./',
                             transform=transforms.ToTensor())
 
-batch_size = 16
+batch_size = 1024
 train_split = .8
 validation_split = .2
 shuffle_dataset = True
@@ -62,7 +62,7 @@ validation_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, 
 test_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, sampler=test_sampler)
 
 # Hyper-parameters
-num_epochs = 2
+num_epochs = 1
 learning_rate = 0.001
 
 model = ConvNet().to(device)

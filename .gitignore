@@ -33,3 +33,5 @@ devenv/
 images/*
 /DaimlerBenchmark/
 /data/
+/venv2/
+/saved_models/
