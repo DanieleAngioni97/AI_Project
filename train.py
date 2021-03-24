@@ -9,6 +9,7 @@ from torch.utils.data import SubsetRandomSampler
 
 from model import ConvNet
 from pedestrian_dataset import PedestrianDataset
+import utils
 
 # set CPU or GPU, if available
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -17,49 +18,11 @@ dataset = PedestrianDataset(csv_file='DaimlerBenchmark/pedestrian_dataset.csv',
                             root_dir='./',
                             transform=transforms.ToTensor())
 
-batch_size = 1024
-train_split = .8
-validation_split = .2
-shuffle_dataset = True
-random_seed = 0
-
-# Creating data indices for training and validation splits:
-dataset_size = len(dataset)     # 49000
-
-train_size = int(np.floor(train_split * dataset_size))
-print("Train size + Val size = ", train_size)
-test_size = int(dataset_size - train_size)
-train_size = int(np.floor(train_size * (1 - validation_split)))
-validation_size = int(dataset_size - train_size - test_size)
-
-print("train_size = ", train_size)
-print("validation_size = ", validation_size)
-print("test_size", test_size)
-print("Sum = ", train_size + validation_size + test_size)
-
-assert train_size + validation_size + test_size == dataset_size
-
-# Train size + Val size =  39200
-# train_size =  31360
-# validation_size =  7840
-# test_size 9800
-
-indices = list(range(dataset_size))
-if shuffle_dataset:
-    np.random.seed(random_seed)
-    np.random.shuffle(indices)
-train_indices, val_indices, test_indices = indices[:train_size], \
-                                           indices[train_size:train_size + validation_size], \
-                                           indices[train_size + validation_size:]
-
-# Creating PT data samplers and loaders:
-train_sampler = SubsetRandomSampler(train_indices)
-valid_sampler = SubsetRandomSampler(val_indices)
-test_sampler = SubsetRandomSampler(val_indices)
-
-train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, sampler=train_sampler)
-validation_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, sampler=valid_sampler)
-test_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, sampler=test_sampler)
+train_loader, validation_loader, _ = dataset.loader(batch_size=128,
+                                                    train_split=.8,
+                                                    validation_split=.2,
+                                                    shuffle_dataset=True,
+                                                    random_seed=0)
 
 # Hyper-parameters
 num_epochs = 1
@@ -73,7 +36,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 # Train the model
 total_step = len(train_loader)
-loss_path = np.zeros(shape=(num_epochs, total_step))
+tr_loss_path = np.zeros(shape=(num_epochs, total_step))
+val_loss_path = np.zeros(shape=(num_epochs, total_step))
 for epoch in range(num_epochs):
     for i, (images, labels) in enumerate(train_loader):
         images = images.to(device)
@@ -83,38 +47,32 @@ for epoch in range(num_epochs):
         outputs = model(images)
         loss = criterion(outputs, labels)
 
-        loss_path[epoch][i] = loss.item()
+        tr_loss_path[epoch][i] = loss.item()
 
         # Backward and optimize
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
+        # todo: aggiungere la loss sul validation, salvare le loss ecc
+
         if (i+1) % 5 == 0:
             print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
                   .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+        if (i+1) % 100 == 0:
+            torch.cuda.empty_cache()
+
+torch.save({
+            'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss': loss
+            }, utils.PATH + "modello_swag.tar")
 
 plt.figure()
-plt.plot(loss_path.ravel())
+plt.plot(tr_loss_path.ravel())
 plt.title('Loss')
 plt.xlabel("iteration")
 plt.show()
-
-# Test the model
-# eval mode (batchnorm uses moving mean/var instead of mini-batch mean/var)
-model.eval()
-with torch.no_grad():
-    correct = 0
-    total = 0
-    for images, labels in test_loader:
-        images = images.to(device)
-        labels = labels.to(device)
-        outputs = model(images)
-        _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
-
-    print('Test Accuracy of the model on the 10000 test images: {} %'
-          .format(100.0 * correct / total))
 
 print("")

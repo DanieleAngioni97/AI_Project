@@ -1,4 +1,4 @@
-from prova_lettura_immagini import read_pgm_reshape
+from read_pgm import read_pgm_reshape
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -6,6 +6,9 @@ from PIL import Image
 import random
 import os
 
+# CONSTANT
+
+PATH = "saved_models/"
 
 def create_csv():
     images_path = []
@@ -50,6 +53,18 @@ def load_pedestrian_dataset():
         y_tr[i] = el[1]
 
     return x_tr, y_tr
+
+def plot_images_from_dataset(data):
+    n = 5  # images to be visualized
+    bias = 0  # starting index from the test set for the visualization
+    plt.figure(figsize=(20, 10))
+    for i in range(n):
+        ax = plt.subplot(1, n, i + 1)
+        plt.imshow(data[i + bias], plt.cm.gray)
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+
+    plt.show()
 
 if __name__ == "__main__":
     create_csv()

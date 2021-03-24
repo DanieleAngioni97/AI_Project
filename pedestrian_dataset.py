@@ -5,10 +5,10 @@ import pandas as pd
 # from skimage import io, transform
 import numpy as np
 import matplotlib.pyplot as plt
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
 from torchvision import transforms, utils
 
-from prova_lettura_immagini import read_pgm_reshape
+from read_pgm import read_pgm_reshape
 
 
 class PedestrianDataset(Dataset):
@@ -49,3 +49,50 @@ class PedestrianDataset(Dataset):
         sample = (image, label)
 
         return sample
+
+    def loader(self, batch_size=64,
+               train_split=.8,
+               validation_split=.2,
+               shuffle_dataset=True,
+               random_seed=0):
+
+        # Creating data indices for training and validation splits:
+        dataset_size = len(self)  # 49000
+
+        train_size = int(np.floor(train_split * dataset_size))
+        print("Train size + Val size = ", train_size)
+        test_size = int(dataset_size - train_size)
+        train_size = int(np.floor(train_size * (1 - validation_split)))
+        validation_size = int(dataset_size - train_size - test_size)
+
+        print("train_size = ", train_size)
+        print("validation_size = ", validation_size)
+        print("test_size", test_size)
+        print("Sum = ", train_size + validation_size + test_size)
+
+        assert train_size + validation_size + test_size == dataset_size
+
+        # Train size + Val size =  39200
+        # train_size =  31360
+        # validation_size =  7840
+        # test_size 9800
+
+        indices = list(range(dataset_size))
+        if shuffle_dataset:
+            np.random.seed(random_seed)
+            np.random.shuffle(indices)
+
+        train_indices = indices[:train_size]
+        val_indices = indices[train_size:train_size + validation_size]
+        test_indices = indices[train_size + validation_size:]
+
+        # Creating PT data samplers and loaders:
+        train_sampler = SubsetRandomSampler(train_indices)
+        valid_sampler = SubsetRandomSampler(val_indices)
+        test_sampler = SubsetRandomSampler(test_indices)
+
+        train_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=train_sampler)
+        validation_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=valid_sampler)
+        test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=test_sampler)
+
+        return train_loader, validation_loader, test_loader
