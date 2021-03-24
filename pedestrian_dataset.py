@@ -2,11 +2,9 @@ from __future__ import print_function, division
 import os
 import torch
 import pandas as pd
-# from skimage import io, transform
-import numpy as np
-import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
-from torchvision import transforms, utils
+import numpy as np
+import utils
 
 from read_pgm import read_pgm_reshape
 
@@ -14,7 +12,7 @@ from read_pgm import read_pgm_reshape
 class PedestrianDataset(Dataset):
     """Pedestrian dataset."""
 
-    def __init__(self, csv_file, root_dir, transform=None, shape=(32, 32)):
+    def __init__(self, train=True, root_dir='./', transform=None, shape=(32, 32)):
         """
         Args:
             csv_file (string): Path to the csv file with annotations.
@@ -22,10 +20,12 @@ class PedestrianDataset(Dataset):
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
-        self.pedestrian_frame = pd.read_csv(csv_file)
+        csv_path = os.path.join(utils.ROOT_DIR_DATASET, utils.TRAIN_PATH if train else utils.TEST_PATH)
+        self.pedestrian_frame = pd.read_csv(csv_path)
         self.root_dir = root_dir
         self.transform = transform
         self.shape = shape
+        self.train = train
 
     def __len__(self):
         return len(self.pedestrian_frame)
@@ -45,54 +45,72 @@ class PedestrianDataset(Dataset):
 
         label = self.pedestrian_frame.iloc[idx, 1]
         label = np.array(label)
-        # sample = {'image': image, 'label': label}
         sample = (image, label)
 
         return sample
 
     def loader(self, batch_size=64,
-               train_split=.8,
                validation_split=.2,
-               shuffle_dataset=True,
+               shuffle_dataset=False,
                random_seed=0):
 
         # Creating data indices for training and validation splits:
-        dataset_size = len(self)  # 49000
-
-        train_size = int(np.floor(train_split * dataset_size))
-        print("Train size + Val size = ", train_size)
-        test_size = int(dataset_size - train_size)
-        train_size = int(np.floor(train_size * (1 - validation_split)))
-        validation_size = int(dataset_size - train_size - test_size)
-
-        print("train_size = ", train_size)
-        print("validation_size = ", validation_size)
-        print("test_size", test_size)
-        print("Sum = ", train_size + validation_size + test_size)
-
-        assert train_size + validation_size + test_size == dataset_size
-
-        # Train size + Val size =  39200
-        # train_size =  31360
-        # validation_size =  7840
-        # test_size 9800
-
+        dataset_size = len(self)
         indices = list(range(dataset_size))
-        if shuffle_dataset:
-            np.random.seed(random_seed)
-            np.random.shuffle(indices)
 
-        train_indices = indices[:train_size]
-        val_indices = indices[train_size:train_size + validation_size]
-        test_indices = indices[train_size + validation_size:]
+        if self.train:
+            train_size = int(np.floor(dataset_size * (1 - validation_split)))
+            validation_size = int(dataset_size - train_size)
+            assert train_size + validation_size == dataset_size
 
-        # Creating PT data samplers and loaders:
-        train_sampler = SubsetRandomSampler(train_indices)
-        valid_sampler = SubsetRandomSampler(val_indices)
-        test_sampler = SubsetRandomSampler(test_indices)
 
-        train_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=train_sampler)
-        validation_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=valid_sampler)
-        test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=test_sampler)
+            if shuffle_dataset:
+                np.random.seed(random_seed)
+                np.random.shuffle(indices)
 
-        return train_loader, validation_loader, test_loader
+            train_indices = indices[:train_size]
+            val_indices = indices[train_size:]
+
+            # torch.manual_seed(random_seed)
+            # Creating PT data samplers and loaders:
+            train_sampler = SubsetRandomSampler(train_indices)
+            valid_sampler = SubsetRandomSampler(val_indices)
+
+            train_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=train_sampler)
+            validation_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=valid_sampler)
+
+            return train_loader, validation_loader
+        else:
+            test_sampler = SubsetRandomSampler(indices)
+            test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=test_sampler)
+
+        return test_loader
+
+
+if __name__ == "__main__":
+    import numpy as np
+    import torchvision.transforms as transforms
+    from torch.utils.data import SubsetRandomSampler
+    from pedestrian_dataset import PedestrianDataset
+
+    dataset = PedestrianDataset(csv_file='DaimlerBenchmark/pedestrian_dataset.csv',
+                                root_dir='./',
+                                transform=transforms.ToTensor())
+
+    tr_loader, _, _ = dataset.loader(batch_size=128,
+                                        train_split=.8,
+                                        validation_split=.2,
+                                        shuffle_dataset=True,
+                                        random_seed=0)
+    _, val_loader, _ = dataset.loader(batch_size=128,
+                                     train_split=.8,
+                                     validation_split=.2,
+                                     shuffle_dataset=True,
+                                     random_seed=0)
+    _, _, ts_loader = dataset.loader(batch_size=1024,
+                                     train_split=.8,
+                                     validation_split=.2,
+                                     shuffle_dataset=True,
+                                     random_seed=0)
+
+    print("")

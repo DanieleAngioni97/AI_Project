@@ -9,22 +9,42 @@ import os
 # CONSTANT
 
 PATH = "saved_models/"
+ROOT_DIR_DATASET = "DaimlerBenchmark"
+TRAIN_PATH = "pedestrian_trainset.csv"
+TEST_PATH = "pedestrian_testset.csv"
 
 def create_csv():
-    images_path = []
-    labels = []
+    ts_images_path = []
+    ts_labels = []
+    tr_fname = "DaimlerBenchmark/pedestrian_trainset.csv"
+    tr_images_path = []
+    tr_labels = []
+    ts_fname = "DaimlerBenchmark/pedestrian_testset.csv"
+
     for (dirpath, dirnames, filenames) in os.walk(top=r"DaimlerBenchmark"):
         if not dirnames:
             for filename in filenames:
-                images_path.append(os.path.join(dirpath, filename))
-                labels.append(0 if "non-ped" in dirpath else 1)
+                if "T" in dirpath:
+                    ts_images_path.append(os.path.join(dirpath, filename))
+                    if "non-ped" in dirpath:
+                        ts_labels.append(0)
+                    else:
+                        ts_labels.append(1)
+                else:
+                    tr_images_path.append(os.path.join(dirpath, filename))
+                    if "non-ped" in dirpath:
+                        tr_labels.append(0)
+                    else:
+                        tr_labels.append(1)
 
-    data = np.array([images_path, labels]).T
-    random.shuffle(data)
-    df = pd.DataFrame(data, columns=['filename', 'label'])
-    df.to_csv("DaimlerBenchmark/pedestrian_dataset.csv", index=False)
+    for (images_path, labels, fname) in [(tr_images_path, tr_labels, tr_fname), (ts_images_path, ts_labels, ts_fname)]:
+        data = np.array([images_path, labels]).T.tolist()
+        for i in range(10):
+            random.shuffle(data)
+        data = np.array(data)
+        tr_df = pd.DataFrame(data, columns=['filename', 'label'])
+        tr_df.to_csv(fname, index=False)
 
-    df1 = pd.read_csv("DaimlerBenchmark/pedestrian_dataset.csv")
     print("")
 
 
@@ -68,3 +88,5 @@ def plot_images_from_dataset(data):
 
 if __name__ == "__main__":
     create_csv()
+
+
