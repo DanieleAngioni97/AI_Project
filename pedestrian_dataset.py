@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
 from torchvision import transforms, utils
 
-from prova_lettura_immagini import read_pgm_reshape
+from read_pgm import read_pgm_reshape
 
 
 class PedestrianDataset(Dataset):
