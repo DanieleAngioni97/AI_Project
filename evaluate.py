@@ -4,22 +4,21 @@ import utils
 from model import ConvNet
 from pedestrian_dataset import PedestrianDataset
 
-model = ConvNet()
-optimizer = optimizer = torch.optim.Adam()
-
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+model = ConvNet().to(device)
+optimizer = torch.optim.Adam(model.parameters())
 
 dataset = PedestrianDataset(csv_file='DaimlerBenchmark/pedestrian_dataset.csv',
                             root_dir='./',
                             transform=transforms.ToTensor())
 
-_, _, test_loader = dataset.loader(batch_size=64,
+_, _, test_loader = dataset.loader(batch_size=1024,
                                    train_split=.8,
                                    validation_split=.2,
                                    shuffle_dataset=True,
                                    random_seed=0)
 
-checkpoint = torch.load(utils.PATH)
+checkpoint = torch.load(utils.PATH + "modello_swag.tar", map_location=device)
 model.load_state_dict(checkpoint['model_state_dict'])
 optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 epoch = checkpoint['epoch']
