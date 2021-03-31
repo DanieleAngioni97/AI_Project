@@ -14,6 +14,12 @@ import utils
 # set CPU or GPU, if available
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
+
+batch_size = 128
+
+#LOAD MODEL
+
+
 dataset = PedestrianDataset(train=True,
                             transform=transforms.ToTensor())
 
