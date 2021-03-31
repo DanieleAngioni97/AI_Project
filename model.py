@@ -5,7 +5,7 @@ import torch
 
 class ConvNet0(nn.Module):
     def init(self, num_classes=2):
-        super(ConvNet0, self).init()
+        super(ConvNet0, self).__init__()
         self.layer1 = nn.Sequential(
             nn.Conv2d(1, 16, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2)),
             nn.ReLU(),

@@ -25,7 +25,7 @@ model.load_state_dict(checkpoint['model_state_dict'])
 (tr_loss_path, val_loss_path) = checkpoint['loss']
 total_step = checkpoint['total_step']
 n_iteration = checkpoint['n_iteration']
-num_epochs = checkpoint['epoch']
+num_epochs = checkpoint['num_epochs']
 # Test the model
 # eval mode (batchnorm uses moving mean/var instead of mini-batch mean/var)
 model.eval()
@@ -47,8 +47,7 @@ with torch.no_grad():
     print('Test Accuracy of the model on the 10000 test images: {} %'
           .format(100.0 * correct / total))
 
-num_epochs = 10
-total_step = total_step/2
+
 vector_iterations = (np.arange(1, int((total_step/n_iteration))*(num_epochs+1)+1))*n_iteration
 plt.figure()
 plt.plot(vector_iterations, tr_loss_path.ravel(), color='blue', label='Train loss')
