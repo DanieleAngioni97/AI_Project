@@ -7,28 +7,28 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from torch.utils.data import SubsetRandomSampler
 
-from model import ConvNet
+from model import ConvNet1
 from pedestrian_dataset import PedestrianDataset
 import utils
 
 # set CPU or GPU, if available
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-dataset = PedestrianDataset(csv_file='DaimlerBenchmark/pedestrian_dataset.csv',
-                            root_dir='./',
+dataset = PedestrianDataset(train=True,
                             transform=transforms.ToTensor())
 
-train_loader, validation_loader, _ = dataset.loader(batch_size=64,
-                                                    train_split=.8,
-                                                    validation_split=.2,
-                                                    shuffle_dataset=True,
-                                                    random_seed=0)
+train_loader, validation_loader = dataset.loader(batch_size=128,
+                                                 validation_split=.2,
+                                                 shuffle_dataset=True,
+                                                 random_seed=49)
 
 # Hyper-parameters
-num_epochs = 1
+num_epochs = 10
 learning_rate = 0.001
 
-model = ConvNet().to(device)
+torch.manual_seed(0)
+
+model = ConvNet1().to(device)
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
@@ -82,20 +82,14 @@ for epoch in range(num_epochs):
         if (i+1) % 100 == 0:
             torch.cuda.empty_cache()
 
-#torch.save({
-#            'epoch': epoch,
-#            'model_state_dict': model.state_dict(),
-#            'optimizer_state_dict': optimizer.state_dict(),
-#            'loss': tr_loss
-#            }, utils.PATH + "modello_swag.tar")
+torch.save({
+            'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss': (tr_loss_path, val_loss_path),
+            'n_iteration': n_iteration,
+            'total_step': total_step
+            }, utils.PATH + "modello_too_swag.tar")
 
-plt.figure()
-plt.plot(tr_loss_path.ravel(), color='blue', label='Train loss')
-plt.plot(val_loss_path.ravel(), color='red', label='Validation loss')
-#plt.plot(x, y, color='green', marker='o', linestyle='dashed', linewidth=2, markersize=12)
-plt.title('Train loss and Validation loss')
-plt.legend()
-plt.xlabel("iteration")
-plt.show()
 
 print("")
