@@ -35,3 +35,4 @@ images/*
 /data/
 /saved_models/
 /venv2/
+/dbcollection/
