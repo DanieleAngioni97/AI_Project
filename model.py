@@ -5,7 +5,7 @@ import torch
 
 class ConvNet0(nn.Module):
     def init(self, num_classes=2):
-        super(ConvNet0, self).init()
+        super(ConvNet0, self).__init__()
         self.layer1 = nn.Sequential(
             nn.Conv2d(1, 16, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2)),
             nn.ReLU(),
@@ -48,10 +48,12 @@ class ConvNet1(nn.Module):
         self.fc2 = nn.Linear(256, num_classes)
 
     def forward(self, x):
-        out = self.layer1(x)
-        out = self.layer2(out)
-        out = self.layer3(out)
-        out = out.reshape(out.size(0), -1)
-        out = self.fc1(out)
-        out = self.fc2(out)
-        return out
+        conv0 = self.layer1(x)
+        conv1 = self.layer2(conv0)
+        conv2 = self.layer3(conv1)
+        conv2_flattened = conv2.reshape(conv2.size(0), -1)
+        out1 = self.fc1(conv2_flattened)
+        out2 = self.fc2(out1)
+        return (conv0, conv1, conv2, conv2_flattened, out1, out2)
+
+

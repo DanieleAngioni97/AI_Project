@@ -16,14 +16,11 @@ batch_size = 128
 validation_split = 0.2
 
 # Hyper-parameters
-num_epochs = 1
+num_epochs = 10
 learning_rate = 0.001
 
 # set CPU or GPU, if available
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-
-
-batch_size = 128
 
 #LOAD MODEL
 
@@ -36,13 +33,13 @@ torch.manual_seed(0)
 
 model = ConvNet1().to(device)
 
-pretrained = True
+pretrained = False
 if pretrained:
     checkpoint = torch.load(utils.PATH + "modello_too_swag.tar", map_location=device)
     model.load_state_dict(checkpoint['model_state_dict'])
     (tr_loss_path_old, val_loss_path_old) = checkpoint['loss']
-    #batch_size = checkpoint['batch_size']
-    #validation_split = checkpoint['validation_split']
+    batch_size = checkpoint['batch_size']
+    validation_split = checkpoint['validation_split']
     total_step_old = checkpoint['total_step']
     n_iteration = checkpoint['n_iteration']
     num_epochs_old = checkpoint['epoch']
@@ -85,15 +82,17 @@ for epoch in range(num_epochs):
         if (i+1) % n_iteration == 0:
             k = 0
             temp_val_loss = np.zeros(shape=(len(validation_loader)))
-            for j, (val_images, val_labels) in enumerate(validation_loader):
-                val_images = tr_images.to(device)
-                val_labels = tr_labels.to(device)
+            model.eval()
+            with torch.no_grad():
+                for j, (val_images, val_labels) in enumerate(validation_loader):
+                    val_images = val_images.to(device)
+                    val_labels = val_labels.to(device)
 
-                # Forward pass
-                val_outputs = model(val_images)
-                val_loss = criterion(val_outputs, val_labels)
-                temp_val_loss[j] = val_loss.item()
-
+                    # Forward pass
+                    val_outputs = model(val_images)
+                    val_loss = criterion(val_outputs, val_labels)
+                    temp_val_loss[j] = val_loss.item()
+            model.train()
             tr_loss_path[epoch][n] = temp_tr_loss.mean()
             val_loss_path[epoch][n] = temp_val_loss.mean()
             print('Epoch [{}/{}], Step [{}/{}], Train loss: {:.4f}, Validation loss: {:.4f}'
