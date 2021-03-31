@@ -11,6 +11,14 @@ from model import ConvNet1
 from pedestrian_dataset import PedestrianDataset
 import utils
 
+
+batch_size = 128
+validation_split = 0.2
+
+# Hyper-parameters
+num_epochs = 1
+learning_rate = 0.001
+
 # set CPU or GPU, if available
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -23,18 +31,26 @@ batch_size = 128
 dataset = PedestrianDataset(train=True,
                             transform=transforms.ToTensor())
 
-train_loader, validation_loader = dataset.loader(batch_size=128,
-                                                 validation_split=.2,
-                                                 shuffle_dataset=True,
-                                                 random_seed=49)
-
-# Hyper-parameters
-num_epochs = 10
-learning_rate = 0.001
 
 torch.manual_seed(0)
 
 model = ConvNet1().to(device)
+
+pretrained = True
+if pretrained:
+    checkpoint = torch.load(utils.PATH + "modello_too_swag.tar", map_location=device)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    (tr_loss_path_old, val_loss_path_old) = checkpoint['loss']
+    #batch_size = checkpoint['batch_size']
+    #validation_split = checkpoint['validation_split']
+    total_step_old = checkpoint['total_step']
+    n_iteration = checkpoint['n_iteration']
+    num_epochs_old = checkpoint['epoch']
+
+train_loader, validation_loader = dataset.loader(batch_size=batch_size,
+                                                 validation_split=validation_split,
+                                                 shuffle_dataset=True,
+                                                 random_seed=49)
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
@@ -65,7 +81,6 @@ for epoch in range(num_epochs):
         tr_loss.backward()
         optimizer.step()
 
-        # todo: aggiungere la loss sul validation, salvare le loss ecc
         k = k + 1
         if (i+1) % n_iteration == 0:
             k = 0
@@ -88,8 +103,16 @@ for epoch in range(num_epochs):
         if (i+1) % 100 == 0:
             torch.cuda.empty_cache()
 
+if pretrained:
+    tr_loss_path = np.vstack([tr_loss_path_old, tr_loss_path])
+    val_loss_path = np.vstack([val_loss_path_old, val_loss_path])
+    num_epochs = num_epochs_old + num_epochs
+
 torch.save({
             'epoch': epoch,
+            'num_epochs': num_epochs,
+            'batch_size': batch_size,
+            'validation_split': validation_split,
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
             'loss': (tr_loss_path, val_loss_path),
