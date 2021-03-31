@@ -7,7 +7,7 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from torch.utils.data import SubsetRandomSampler
 
-from model import ConvNet1
+from model import ConvNet1, ConvNet0
 from pedestrian_dataset import PedestrianDataset
 import utils
 
@@ -22,20 +22,17 @@ learning_rate = 0.001
 # set CPU or GPU, if available
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-#LOAD MODEL
-
-
 dataset = PedestrianDataset(train=True,
                             transform=transforms.ToTensor())
 
 
 torch.manual_seed(0)
 
-model = ConvNet1().to(device)
+model = ConvNet0().to(device)
 
 pretrained = False
 if pretrained:
-    checkpoint = torch.load(utils.PATH + "modello_too_swag.tar", map_location=device)
+    checkpoint = torch.load(utils.PATH + "modello_ConvNet0.tar", map_location=device)
     model.load_state_dict(checkpoint['model_state_dict'])
     (tr_loss_path_old, val_loss_path_old) = checkpoint['loss']
     batch_size = checkpoint['batch_size']
@@ -93,6 +90,7 @@ for epoch in range(num_epochs):
                     val_loss = criterion(val_outputs, val_labels)
                     temp_val_loss[j] = val_loss.item()
             model.train()
+
             tr_loss_path[epoch][n] = temp_tr_loss.mean()
             val_loss_path[epoch][n] = temp_val_loss.mean()
             print('Epoch [{}/{}], Step [{}/{}], Train loss: {:.4f}, Validation loss: {:.4f}'
@@ -117,7 +115,7 @@ torch.save({
             'loss': (tr_loss_path, val_loss_path),
             'n_iteration': n_iteration,
             'total_step': total_step
-            }, utils.PATH + "modello_too_swag.tar")
+            }, utils.PATH + "modello_ConvNet0.tar")
 
 
 print("")
