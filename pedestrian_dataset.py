@@ -3,19 +3,18 @@ import os
 import torch
 import pandas as pd
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
+from PIL import Image
 import numpy as np
 import utils
+import random
 
 from read_pgm import read_pgm_reshape
 
 
-batch_size = 128
-validation_split = 0.2
-
 class PedestrianDataset(Dataset):
     """Pedestrian dataset."""
 
-    def __init__(self, train=True, root_dir='./', transform=None, shape=(32, 32)):
+    def __init__(self, train=True, root_dir='./', transform=None):
         """
         Args:
             csv_file (string): Path to the csv file with annotations.
@@ -27,7 +26,6 @@ class PedestrianDataset(Dataset):
         self.pedestrian_frame = pd.read_csv(csv_path)
         self.root_dir = root_dir
         self.transform = transform
-        self.shape = shape
         self.train = train
 
     def __len__(self):
@@ -39,9 +37,7 @@ class PedestrianDataset(Dataset):
 
         img_name = os.path.join(self.root_dir,
                                 self.pedestrian_frame.iloc[idx, 0])
-        # dataframe.iloc[start_row:end_row,start_col:end_col]
-        # image = io.imread(img_name) #Load an image from file.
-        image = read_pgm_reshape(img_name, self.shape)
+        image = Image.open(img_name)
 
         if self.transform:
             image = self.transform(image)
@@ -57,6 +53,10 @@ class PedestrianDataset(Dataset):
                shuffle_dataset=False,
                random_seed=0):
 
+        np.random.seed(random_seed)
+        torch.manual_seed(random_seed)
+        random.seed(random_seed)
+
         # Creating data indices for training and validation splits:
         dataset_size = len(self)
         indices = list(range(dataset_size))
@@ -68,13 +68,12 @@ class PedestrianDataset(Dataset):
 
 
             if shuffle_dataset:
-                np.random.seed(random_seed)
-                np.random.shuffle(indices)
+                for i in range(10):
+                    np.random.shuffle(indices)
 
             train_indices = indices[:train_size]
             val_indices = indices[train_size:]
 
-            # torch.manual_seed(random_seed)
             # Creating PT data samplers and loaders:
             #train_sampler = torch.utils.data.SubsetRandomSampler(train_indices)
             #valid_sampler = torch.utils.data.SubsetRandomSampler(val_indices)
@@ -97,8 +96,10 @@ class PedestrianDataset(Dataset):
 if __name__ == "__main__":
     import numpy as np
     import torchvision.transforms as transforms
-    from torch.utils.data import SubsetRandomSampler
     from pedestrian_dataset import PedestrianDataset
+
+    batch_size = 32
+    validation_split = 0.2
 
     dataset_train_val = PedestrianDataset(train=True,
                                           transform=transforms.ToTensor())
@@ -115,6 +116,8 @@ if __name__ == "__main__":
                                      validation_split=validation_split,
                                      shuffle_dataset=True,
                                      random_seed=49)
+
+    img, label = iter(train_loader).next()
 
     print("")
 

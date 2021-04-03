@@ -10,7 +10,7 @@ import os
 # CONSTANT
 
 PATH = "saved_models/"
-ROOT_DIR_DATASET = "DaimlerBenchmark"
+ROOT_DIR_DATASET = "data/INRIA_cropped"
 TRAIN_PATH = "pedestrian_trainset.csv"
 TEST_PATH = "pedestrian_testset.csv"
 
