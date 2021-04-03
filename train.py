@@ -19,6 +19,8 @@ validation_split = 0.2
 num_epochs = 10
 learning_rate = 0.001
 
+model_name = "modello_ConvNet0"
+
 # set CPU or GPU, if available
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -30,9 +32,9 @@ torch.manual_seed(0)
 
 model = ConvNet0().to(device)
 
-pretrained = False
+pretrained = True
 if pretrained:
-    checkpoint = torch.load(utils.PATH + "modello_ConvNet0.tar", map_location=device)
+    checkpoint = torch.load(utils.PATH + model_name + ".tar", map_location=device)
     model.load_state_dict(checkpoint['model_state_dict'])
     (tr_loss_path_old, val_loss_path_old) = checkpoint['loss']
     batch_size = checkpoint['batch_size']
@@ -103,9 +105,10 @@ for epoch in range(num_epochs):
 if pretrained:
     tr_loss_path = np.vstack([tr_loss_path_old, tr_loss_path])
     val_loss_path = np.vstack([val_loss_path_old, val_loss_path])
-    num_epochs = num_epochs_old + num_epochs
+    num_epochs = num_epochs_old + num_epochs + 1
 
 torch.save({
+            'model_name': model_name,
             'epoch': epoch,
             'num_epochs': num_epochs,
             'batch_size': batch_size,
@@ -115,7 +118,7 @@ torch.save({
             'loss': (tr_loss_path, val_loss_path),
             'n_iteration': n_iteration,
             'total_step': total_step
-            }, utils.PATH + "modello_ConvNet0.tar")
+            }, utils.PATH + model_name + ".tar")
 
 
 print("")

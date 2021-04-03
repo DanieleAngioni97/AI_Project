@@ -9,6 +9,9 @@ import utils
 from read_pgm import read_pgm_reshape
 
 
+batch_size = 128
+validation_split = 0.2
+
 class PedestrianDataset(Dataset):
     """Pedestrian dataset."""
 
@@ -73,16 +76,20 @@ class PedestrianDataset(Dataset):
 
             # torch.manual_seed(random_seed)
             # Creating PT data samplers and loaders:
-            train_sampler = SubsetRandomSampler(train_indices)
-            valid_sampler = SubsetRandomSampler(val_indices)
+            #train_sampler = torch.utils.data.SubsetRandomSampler(train_indices)
+            #valid_sampler = torch.utils.data.SubsetRandomSampler(val_indices)
+            train_sampler = torch.utils.data.Subset(self, train_indices)
+            valid_sampler = torch.utils.data.Subset(self, val_indices)
+            #train_sampler = torch.utils.data.SequentialSampler(self)
+            #valid_sampler = torch.utils.data.SequentialSampler(self)
 
-            train_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=train_sampler)
-            validation_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=valid_sampler)
+            train_loader = torch.utils.data.DataLoader(train_sampler, batch_size=batch_size)
+            validation_loader = torch.utils.data.DataLoader(valid_sampler, batch_size=batch_size)
 
             return train_loader, validation_loader
         else:
-            test_sampler = SubsetRandomSampler(indices)
-            test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=test_sampler)
+            #valutare la possibilità dello shuffle per il test
+            test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size)
 
         return test_loader
 
@@ -93,24 +100,21 @@ if __name__ == "__main__":
     from torch.utils.data import SubsetRandomSampler
     from pedestrian_dataset import PedestrianDataset
 
-    dataset = PedestrianDataset(csv_file='DaimlerBenchmark/pedestrian_dataset.csv',
-                                root_dir='./',
-                                transform=transforms.ToTensor())
+    dataset_train_val = PedestrianDataset(train=True,
+                                          transform=transforms.ToTensor())
 
-    tr_loader, _, _ = dataset.loader(batch_size=128,
-                                        train_split=.8,
-                                        validation_split=.2,
-                                        shuffle_dataset=True,
-                                        random_seed=0)
-    _, val_loader, _ = dataset.loader(batch_size=128,
-                                     train_split=.8,
-                                     validation_split=.2,
+    train_loader, validation_loader = dataset_train_val.loader(batch_size=batch_size,
+                                                               validation_split=validation_split,
+                                                               shuffle_dataset=True,
+                                                               random_seed=49)
+
+    dataset_test = PedestrianDataset(train=False,
+                                     transform=transforms.ToTensor())
+
+    test_loader = dataset_test.loader(batch_size=batch_size,
+                                     validation_split=validation_split,
                                      shuffle_dataset=True,
-                                     random_seed=0)
-    _, _, ts_loader = dataset.loader(batch_size=1024,
-                                     train_split=.8,
-                                     validation_split=.2,
-                                     shuffle_dataset=True,
-                                     random_seed=0)
+                                     random_seed=49)
 
     print("")
+
