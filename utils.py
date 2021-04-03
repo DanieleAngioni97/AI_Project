@@ -80,7 +80,7 @@ def plot_images_from_dataset(data):
     plt.figure(figsize=(20, 10))
     for i in range(n):
         ax = plt.subplot(1, n, i + 1)
-        plt.imshow(data[i + bias], plt.cm.gray)
+        plt.imshow(data[i + bias])
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
 
@@ -158,9 +158,7 @@ def create_new_dataset():
 
 if __name__ == "__main__":
     # statistics("data/INRIA_cropped")
-    create_csv()
-
-
+    #create_csv()
 
     print("")
 

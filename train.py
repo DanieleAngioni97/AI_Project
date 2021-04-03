@@ -12,14 +12,16 @@ from pedestrian_dataset import PedestrianDataset
 import utils
 
 
-batch_size = 128
+batch_size = 64
 validation_split = 0.2
 
+n_iteration = 5
+
 # Hyper-parameters
-num_epochs = 10
+num_epochs = 5
 learning_rate = 0.001
 
-model_name = "modello_ConvNet0"
+model_name = "ConvNet1_controllo_per_sicurezza"
 
 # set CPU or GPU, if available
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -27,12 +29,9 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 dataset = PedestrianDataset(train=True,
                             transform=transforms.ToTensor())
 
+model = ConvNet1().to(device)
 
-torch.manual_seed(0)
-
-model = ConvNet0().to(device)
-
-pretrained = True
+pretrained = False
 if pretrained:
     checkpoint = torch.load(utils.PATH + model_name + ".tar", map_location=device)
     model.load_state_dict(checkpoint['model_state_dict'])
@@ -54,7 +53,6 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 # Train the model
 total_step = len(train_loader)
-n_iteration = 10
 tr_loss_path = np.zeros(shape=(num_epochs, int(total_step/n_iteration)))
 val_loss_path = np.zeros(shape=(num_epochs, int(total_step/n_iteration)))
 
@@ -69,7 +67,7 @@ for epoch in range(num_epochs):
         tr_labels = tr_labels.to(device)
 
         # Forward pass
-        tr_outputs = model(tr_images)
+        tr_outputs = model(tr_images)[-1]
         tr_loss = criterion(tr_outputs, tr_labels)
         temp_tr_loss[k] = tr_loss.item()
         # Backward and optimize
@@ -88,7 +86,7 @@ for epoch in range(num_epochs):
                     val_labels = val_labels.to(device)
 
                     # Forward pass
-                    val_outputs = model(val_images)
+                    val_outputs = model(val_images)[-1]
                     val_loss = criterion(val_outputs, val_labels)
                     temp_val_loss[j] = val_loss.item()
             model.train()
@@ -97,7 +95,7 @@ for epoch in range(num_epochs):
             val_loss_path[epoch][n] = temp_val_loss.mean()
             print('Epoch [{}/{}], Step [{}/{}], Train loss: {:.4f}, Validation loss: {:.4f}'
                   .format(epoch + 1, num_epochs, i + 1, total_step,
-                    tr_loss_path[epoch][n],val_loss_path[epoch][n]))
+                          tr_loss_path[epoch][n], val_loss_path[epoch][n]))
             n = n + 1
         if (i+1) % 100 == 0:
             torch.cuda.empty_cache()

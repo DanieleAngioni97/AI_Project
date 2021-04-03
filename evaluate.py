@@ -6,6 +6,8 @@ from pedestrian_dataset import PedestrianDataset
 import matplotlib.pyplot as plt
 import numpy as np
 
+# model_name = 'ConvNet1_controllo_per_sicurezza'
+model_name = 'ConvNet1_without_augmentation'
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 model = ConvNet1().to(device)
@@ -13,17 +15,17 @@ model = ConvNet1().to(device)
 dataset = PedestrianDataset(train=False,
                             transform=transforms.ToTensor())
 
-test_loader = dataset.loader(batch_size=1024,
-                             shuffle_dataset=False,
+test_loader = dataset.loader(batch_size=64,
+                             shuffle_dataset=True,
                              random_seed=0)
 
-# checkpoint = torch.load(utils.PATH + "modello_ConvNet0.tar", map_location=device)
-# model.load_state_dict(checkpoint['model_state_dict'])
-# (tr_loss_path, val_loss_path) = checkpoint['loss']
-# total_step = checkpoint['total_step']
-# n_iteration = checkpoint['n_iteration']
-# num_epochs = checkpoint['num_epochs']
-# model_name = checkpoint['model_name']
+checkpoint = torch.load(utils.PATH + model_name + ".tar", map_location=device)
+model.load_state_dict(checkpoint['model_state_dict'])
+(tr_loss_path, val_loss_path) = checkpoint['loss']
+total_step = checkpoint['total_step']
+n_iteration = checkpoint['n_iteration']
+num_epochs = checkpoint['num_epochs']
+model_name = checkpoint['model_name']
 
 # Test the model
 # eval mode (batchnorm uses moving mean/var instead of mini-batch mean/var)
@@ -47,12 +49,14 @@ with torch.no_grad():
           .format(100.0 * correct / total))
 
 
-# vector_iterations = np.arange(1, tr_loss_path.ravel().shape[0]+1)*n_iteration
-# plt.figure()
-# plt.plot(vector_iterations, tr_loss_path.ravel(), color='blue', label='Train loss')
-# plt.plot(vector_iterations, val_loss_path.ravel(), color='red', label='Validation loss')
-# # plt.plot(x, y, color='green', marker='o', linestyle='dashed', linewidth=2, markersize=12)
-# plt.title('Loss of {}'.format(model_name))
-# plt.legend()
-# plt.xlabel("iteration")
-# plt.show()
+vector_iterations = np.arange(1, tr_loss_path.ravel().shape[0]+1)*n_iteration
+plt.figure()
+plt.plot(vector_iterations, tr_loss_path.ravel(), color='blue', label='Train loss')
+plt.plot(vector_iterations, val_loss_path.ravel(), color='red', label='Validation loss')
+# plt.plot(x, y, color='green', marker='o', linestyle='dashed', linewidth=2, markersize=12)
+plt.title('Loss of {}'.format(model_name))
+plt.legend()
+plt.xlabel("iteration")
+plt.savefig("images/" + "loss" + model_name + ".png")
+
+plt.show()
