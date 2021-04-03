@@ -44,7 +44,7 @@ class PedestrianDataset(Dataset):
 
         label = self.pedestrian_frame.iloc[idx, 1]
         label = np.array(label)
-        sample = (image, label)
+        sample = (image[:3], label)
 
         return sample
 
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     import torchvision.transforms as transforms
     from pedestrian_dataset import PedestrianDataset
 
-    batch_size = 32
+    batch_size = 128
     validation_split = 0.2
 
     dataset_train_val = PedestrianDataset(train=True,
@@ -113,11 +113,15 @@ if __name__ == "__main__":
                                      transform=transforms.ToTensor())
 
     test_loader = dataset_test.loader(batch_size=batch_size,
-                                     validation_split=validation_split,
-                                     shuffle_dataset=True,
+                                     shuffle_dataset=False,
                                      random_seed=49)
 
-    img, label = iter(train_loader).next()
+    # img, label = iter(train_loader).next()
+
+    for img, label in train_loader:
+        pass
+
+    print(dataset_train_val.cnt)
 
     print("")
 

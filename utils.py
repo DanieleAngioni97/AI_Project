@@ -66,7 +66,7 @@ def load_pedestrian_dataset():
 
     x_tr, y_tr = np.array(x_tr).astype('float32') / 255., np.array(y_tr)
     train = list(zip(x_tr, y_tr))
-    random.shuffle(train)   # todo: controllare che abbia mischiato le righe e non gli elementi a caso
+    random.shuffle(train)
 
     for i, el in enumerate(train):
         x_tr[i] = el[0]
