@@ -36,11 +36,17 @@ def read_pgm_reshape(filename, new_shape):
 
 
 if __name__ == "__main__":
-    from matplotlib import pyplot
+    import matplotlib.pyplot as plt
 
-    new_shape = (30, 30)
-    reshaped_image = read_pgm_reshape("DaimlerBenchmark/1/ped_examples/img_00000.pgm", new_shape)
-    pyplot.imshow(reshaped_image, pyplot.cm.gray)
-    pyplot.show()
+    # new_shape = (30, 30)
+    # reshaped_image = read_pgm_reshape("data/INRIAPerson/70X134H96/Test/pos/crop001501a.png", new_shape)
+    # pyplot.imshow(reshaped_image, pyplot.cm.gray)
+    # pyplot.show()
+
+    image = Image.open("data/INRIA_organized/Test/neg/00001147.png")
+    plt.imshow(image)
+    plt.show()
+
+    print("")
 
 

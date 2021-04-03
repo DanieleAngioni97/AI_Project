@@ -5,6 +5,8 @@ import pandas as pd
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
 import numpy as np
 import utils
+import random
+
 
 from read_pgm import read_pgm_reshape
 
@@ -54,6 +56,10 @@ class PedestrianDataset(Dataset):
                shuffle_dataset=False,
                random_seed=0):
 
+        np.random.seed(random_seed)
+        torch.manual_seed(random_seed)
+        random.seed(random_seed)
+
         # Creating data indices for training and validation splits:
         dataset_size = len(self)
         indices = list(range(dataset_size))
@@ -65,7 +71,6 @@ class PedestrianDataset(Dataset):
 
 
             if shuffle_dataset:
-                np.random.seed(random_seed)
                 np.random.shuffle(indices)
 
             train_indices = indices[:train_size]
@@ -82,7 +87,7 @@ class PedestrianDataset(Dataset):
             return train_loader, validation_loader
         else:
             test_sampler = SubsetRandomSampler(indices)
-            test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=test_sampler)
+            test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size)
 
         return test_loader
 

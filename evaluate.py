@@ -9,7 +9,6 @@ import numpy as np
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 model = ConvNet1().to(device)
-optimizer = torch.optim.Adam(model.parameters())
 
 model = ConvNet1().to(device)
 

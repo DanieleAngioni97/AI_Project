@@ -30,7 +30,7 @@ with torch.no_grad():
 label_str = ['non-pedestrian', 'pedestrian']
 
 for (image, label, y_pred) in list(zip(images, labels, y_preds)):
-    image = np.transpose(image.numpy(), (2, 3, 1))
+    image = image.numpy()[0]
     plt.imshow(image, plt.cm.gray)
     plt.title('True label : {}\nPredicted : {}'.format(label_str[label.item()],
                                                      label_str[y_pred.item()]))
