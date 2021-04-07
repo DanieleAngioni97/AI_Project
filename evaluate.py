@@ -8,16 +8,18 @@ import numpy as np
 
 # model_name = 'ConvNet1_controllo_per_sicurezza'
 model_name = 'ConvNet1_without_augmentation'
+utils.set_seed(random_seed=49)
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 model = ConvNet1().to(device)
 
+transform = transforms.ToTensor()
+
 dataset = PedestrianDataset(train=False,
-                            transform=transforms.ToTensor())
+                            transform=transform)
 
 test_loader = dataset.loader(batch_size=64,
-                             shuffle_dataset=True,
-                             random_seed=0)
+                             shuffle_dataset=False)
 
 checkpoint = torch.load(utils.PATH + model_name + ".tar", map_location=device)
 model.load_state_dict(checkpoint['model_state_dict'])

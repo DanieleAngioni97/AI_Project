@@ -50,12 +50,8 @@ class PedestrianDataset(Dataset):
 
     def loader(self, batch_size=64,
                validation_split=.2,
-               shuffle_dataset=False,
-               random_seed=0):
+               shuffle_dataset=False):
 
-        np.random.seed(random_seed)
-        torch.manual_seed(random_seed)
-        random.seed(random_seed)
 
         # Creating data indices for training and validation splits:
         dataset_size = len(self)

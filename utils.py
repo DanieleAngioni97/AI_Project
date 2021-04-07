@@ -6,6 +6,7 @@ from PIL import Image
 import random
 import torchvision.transforms as transforms
 import os
+import torch
 
 # CONSTANT
 
@@ -154,6 +155,12 @@ def create_new_dataset():
                     new_img.save(new_path)
             print(new_path)
 
+
+def set_seed(random_seed=0):
+    np.random.seed(random_seed)
+    torch.manual_seed(random_seed)
+    random.seed(random_seed)
+    torch.cuda.manual_seed(random_seed)
 
 
 if __name__ == "__main__":
