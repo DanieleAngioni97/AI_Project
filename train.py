@@ -97,7 +97,7 @@ for epoch in range(num_epochs):
             val_loss_path[epoch][n] = temp_val_loss.mean()
             print('Epoch [{}/{}], Step [{}/{}], Train loss: {:.4f}, Validation loss: {:.4f}'
                   .format(epoch + 1, num_epochs, i + 1, total_step,
-                    tr_loss_path[epoch][n],val_loss_path[epoch][n]))
+                          tr_loss_path[epoch][n],val_loss_path[epoch][n]))
             n = n + 1
         if (i+1) % 100 == 0:
             torch.cuda.empty_cache()

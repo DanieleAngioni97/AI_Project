@@ -61,15 +61,14 @@ class PedestrianDataset(Dataset):
         dataset_size = len(self)
         indices = list(range(dataset_size))
 
+        if shuffle_dataset:
+            for i in range(10):
+                np.random.shuffle(indices)
+
         if self.train:
             train_size = int(np.floor(dataset_size * (1 - validation_split)))
             validation_size = int(dataset_size - train_size)
             assert train_size + validation_size == dataset_size
-
-
-            if shuffle_dataset:
-                for i in range(10):
-                    np.random.shuffle(indices)
 
             train_indices = indices[:train_size]
             val_indices = indices[train_size:]
