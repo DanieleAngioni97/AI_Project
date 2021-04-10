@@ -50,16 +50,15 @@ class PedestrianDataset(Dataset):
 
     def loader(self, batch_size=64,
                validation_split=.2,
-               shuffle_dataset=False,
-               random_seed=0):
+               shuffle_dataset=False):
 
-        np.random.seed(random_seed)
-        torch.manual_seed(random_seed)
-        random.seed(random_seed)
 
         # Creating data indices for training and validation splits:
         dataset_size = len(self)
         indices = list(range(dataset_size))
+        if shuffle_dataset:
+            for i in range(10):
+                np.random.shuffle(indices)
 
         if shuffle_dataset:
             for i in range(10):
@@ -86,8 +85,8 @@ class PedestrianDataset(Dataset):
 
             return train_loader, validation_loader
         else:
-            #valutare la possibilità dello shuffle per il test
-            test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size)
+            test_sampler = torch.utils.data.Subset(self, indices)
+            test_loader = torch.utils.data.DataLoader(test_sampler, batch_size=batch_size)
 
         return test_loader
 
@@ -115,12 +114,6 @@ if __name__ == "__main__":
                                      shuffle_dataset=False,
                                      random_seed=49)
 
-    # img, label = iter(train_loader).next()
-
-    for img, label in train_loader:
-        pass
-
-    print(dataset_train_val.cnt)
 
     print("")
 

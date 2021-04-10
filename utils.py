@@ -6,6 +6,7 @@ from PIL import Image
 import random
 import torchvision.transforms as transforms
 import os
+import torch
 
 # CONSTANT
 
@@ -80,7 +81,7 @@ def plot_images_from_dataset(data):
     plt.figure(figsize=(20, 10))
     for i in range(n):
         ax = plt.subplot(1, n, i + 1)
-        plt.imshow(data[i + bias], plt.cm.gray)
+        plt.imshow(data[i + bias])
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
 
@@ -155,12 +156,16 @@ def create_new_dataset():
             print(new_path)
 
 
+def set_seed(random_seed=0):
+    np.random.seed(random_seed)
+    torch.manual_seed(random_seed)
+    random.seed(random_seed)
+    torch.cuda.manual_seed(random_seed)
+
 
 if __name__ == "__main__":
     # statistics("data/INRIA_cropped")
-    create_csv()
-
-
+    #create_csv()
 
     print("")
 

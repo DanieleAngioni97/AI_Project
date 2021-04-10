@@ -6,18 +6,22 @@ from pedestrian_dataset import PedestrianDataset
 import matplotlib.pyplot as plt
 import numpy as np
 
+# model_name = 'ConvNet1_controllo_per_sicurezza'
+model_name = 'ConvNet1_without_augmentation'
+utils.set_seed(random_seed=49)
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 model = ConvNet1().to(device)
 
+transform = transforms.ToTensor()
+
 dataset = PedestrianDataset(train=False,
-                            transform=transforms.ToTensor())
+                            transform=transform)
 
-test_loader = dataset.loader(batch_size=1024,
-                             shuffle_dataset=False,
-                             random_seed=0)
+test_loader = dataset.loader(batch_size=64,
+                             shuffle_dataset=False)
 
-checkpoint = torch.load(utils.PATH + "modello_ConvNet0.tar", map_location=device)
+checkpoint = torch.load(utils.PATH + model_name + ".tar", map_location=device)
 model.load_state_dict(checkpoint['model_state_dict'])
 (tr_loss_path, val_loss_path) = checkpoint['loss']
 total_step = checkpoint['total_step']
@@ -55,4 +59,6 @@ plt.plot(vector_iterations, val_loss_path.ravel(), color='red', label='Validatio
 plt.title('Loss of {}'.format(model_name))
 plt.legend()
 plt.xlabel("iteration")
+plt.savefig("images/" + "loss" + model_name + ".png")
+
 plt.show()
