@@ -8,8 +8,6 @@ import numpy as np
 import utils
 import random
 
-from read_pgm import read_pgm_reshape
-
 
 class PedestrianDataset(Dataset):
     """Pedestrian dataset."""
@@ -88,7 +86,6 @@ class PedestrianDataset(Dataset):
 
 
 if __name__ == "__main__":
-    import numpy as np
     import torchvision.transforms as transforms
     from pedestrian_dataset import PedestrianDataset
 

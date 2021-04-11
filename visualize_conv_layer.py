@@ -1,14 +1,14 @@
 import torch
 import torchvision.transforms as transforms
 import utils
-from model import ConvNet1
+from model import ConvNet
 from pedestrian_dataset import PedestrianDataset
 import matplotlib.pyplot as plt
 import numpy as np
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-model = ConvNet1().to(device)
+model = ConvNet().to(device)
 
 dataset = PedestrianDataset(train=False,
                             transform=transforms.ToTensor())
