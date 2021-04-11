@@ -1,7 +1,7 @@
 import torch
 import torchvision.transforms as transforms
 import utils
-from model import ConvNet, ConvNet0
+from model import ConvNet
 from pedestrian_dataset import PedestrianDataset
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,7 +26,7 @@ test_loader = dataset.loader(batch_size=64,
                              shuffle_dataset=False)
 
 # load the weight and the other data for the model from the file
-checkpoint = torch.load(utils.PATH + model_name + ".tar", map_location=device)
+checkpoint = torch.load(utils.MODELS_PATH + model_name + ".tar", map_location=device)
 model.load_state_dict(checkpoint['model_state_dict'])
 (tr_loss_path, val_loss_path) = checkpoint['loss']
 total_step = checkpoint['total_step']
