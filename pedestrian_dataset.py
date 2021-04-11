@@ -16,11 +16,10 @@ class PedestrianDataset(Dataset):
 
     def __init__(self, train=True, root_dir='./', transform=None):
         """
-        Args:
-            csv_file (string): Path to the csv file with annotations.
-            root_dir (string): Directory with all the images.
-            transform (callable, optional): Optional transform to be applied
-                on a sample.
+
+        :param train: boolean, set True if train set is required, otherwise set False to pick the test set
+        :param root_dir: directory in wich the dataset is stored
+        :param transform: transform to apply every time a sample is picked
         """
         csv_path = os.path.join(utils.ROOT_DIR_DATASET, utils.TRAIN_PATH if train else utils.TEST_PATH)
         self.pedestrian_frame = pd.read_csv(csv_path)
@@ -52,16 +51,11 @@ class PedestrianDataset(Dataset):
                validation_split=.2,
                shuffle_dataset=False):
 
-
         # Creating data indices for training and validation splits:
         dataset_size = len(self)
         indices = list(range(dataset_size))
         if shuffle_dataset:
-            for i in range(10):
-                np.random.shuffle(indices)
-
-        if shuffle_dataset:
-            for i in range(10):
+            for i in range(20):
                 np.random.shuffle(indices)
 
         if self.train:
@@ -73,12 +67,8 @@ class PedestrianDataset(Dataset):
             val_indices = indices[train_size:]
 
             # Creating PT data samplers and loaders:
-            #train_sampler = torch.utils.data.SubsetRandomSampler(train_indices)
-            #valid_sampler = torch.utils.data.SubsetRandomSampler(val_indices)
             train_sampler = torch.utils.data.Subset(self, train_indices)
             valid_sampler = torch.utils.data.Subset(self, val_indices)
-            #train_sampler = torch.utils.data.SequentialSampler(self)
-            #valid_sampler = torch.utils.data.SequentialSampler(self)
 
             train_loader = torch.utils.data.DataLoader(train_sampler, batch_size=batch_size)
             validation_loader = torch.utils.data.DataLoader(valid_sampler, batch_size=batch_size)
@@ -104,15 +94,13 @@ if __name__ == "__main__":
 
     train_loader, validation_loader = dataset_train_val.loader(batch_size=batch_size,
                                                                validation_split=validation_split,
-                                                               shuffle_dataset=True,
-                                                               random_seed=49)
+                                                               shuffle_dataset=True)
 
     dataset_test = PedestrianDataset(train=False,
                                      transform=transforms.ToTensor())
 
     test_loader = dataset_test.loader(batch_size=batch_size,
-                                     shuffle_dataset=False,
-                                     random_seed=49)
+                                     shuffle_dataset=False)
 
 
     print("")

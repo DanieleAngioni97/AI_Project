@@ -1,3 +1,7 @@
+"""
+PROBABLY DA ELIMINARE PERCHè INUTILE
+"""
+
 import re
 import numpy
 from PIL import Image

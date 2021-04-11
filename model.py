@@ -62,6 +62,6 @@ class ConvNet1(nn.Module):
         conv3_flattened = conv3.view(-1, 8*4*128)
         out1 = self.fc1(conv3_flattened)
         out2 = self.fc2(out1)
-        return (conv0, conv1, conv2, conv3, conv3_flattened, out1, out2)
+        return (conv0, conv1, conv2, conv3, out1, out2)
 
 
