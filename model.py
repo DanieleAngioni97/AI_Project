@@ -3,6 +3,7 @@ Define model's layers and the logic of the forward pass
 """
 
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class ConvNet(nn.Module):
@@ -38,7 +39,7 @@ class ConvNet(nn.Module):
         conv2 = self.layer3(conv1)
         conv3 = self.layer4(conv2)
         conv3_flattened = conv3.view(-1, 8*4*128)
-        out1 = self.fc1(conv3_flattened)
+        out1 = F.relu(self.fc1(conv3_flattened))
         out2 = self.fc2(out1)
 
         # return output of all layers for visualization purpose

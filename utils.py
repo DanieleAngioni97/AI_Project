@@ -5,6 +5,7 @@ import random
 import torchvision.transforms as transforms
 import os
 import torch
+import matplotlib.pyplot as plt
 
 # CONSTANT
 
@@ -19,6 +20,11 @@ def set_seed(random_seed=0):
     torch.manual_seed(random_seed)
     random.seed(random_seed)
     torch.cuda.manual_seed(random_seed)
+
+def imshow(img):
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.show()
 
 
 def create_csv():
@@ -175,8 +181,8 @@ def create_new_dataset():
 
 
 if __name__ == "__main__":
-    create_new_dataset()
-    create_csv()
-
+    # create_new_dataset()
+    # create_csv()
+    statistics('data/INRIA_organized')
 
 

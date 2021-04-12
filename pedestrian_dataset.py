@@ -6,6 +6,7 @@ from torch.utils.data import Dataset
 from PIL import Image
 import numpy as np
 import utils
+from torchvision.utils import make_grid
 
 
 class PedestrianDataset(Dataset):
@@ -101,8 +102,9 @@ class PedestrianDataset(Dataset):
 if __name__ == "__main__":
     import torchvision.transforms as transforms
     from pedestrian_dataset import PedestrianDataset
+    import matplotlib.pyplot as plt
 
-    batch_size = 128
+    batch_size = 16
     validation_split = 0.2
 
     dataset_train_val = PedestrianDataset(train=True,
@@ -116,6 +118,14 @@ if __name__ == "__main__":
                                      transform=transforms.ToTensor())
 
     test_loader = dataset_test.loader(batch_size=batch_size,
-                                     shuffle_dataset=False)
+                                      shuffle_dataset=True)
+
+    images, labels = iter(test_loader).next()
+
+    fig = make_grid(images)
+    plt.title('Sample images')
+    plt.axis('off')
+    utils.imshow(fig)
+
 
 
