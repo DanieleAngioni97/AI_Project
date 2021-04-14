@@ -45,6 +45,7 @@ for transform, model_name in list(zip(transform_list, model_names_list)):
     dataset = PedestrianDataset(train=True,
                                 transform=transform)
 
+
     model = ConvNet().to(device)
     model.load_state_dict(model_orig.state_dict())  # in this way I'm sure that both the ConvNets start
     # with the same weight

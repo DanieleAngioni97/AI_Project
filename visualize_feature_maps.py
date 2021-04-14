@@ -14,7 +14,7 @@ import numpy as np
 import torch.nn.functional as F
 
 
-def visualize(n_images = 1, id_batch=0, layer=None):
+def visualize(n_images=1, id_batch=0, layer=None):
     """
 
     :param n_images: number of images to be visualized
@@ -88,11 +88,10 @@ def visualize(n_images = 1, id_batch=0, layer=None):
                                 nrow=nrows[i],
                                 pad_value=0
                                 )
-                plt.title('Output of {}° layer, label : {}, \nPrediction: {}, confidence: {:.5f}'
-                          .format(i + 1,
-                                  classes[label.item()],
-                                  classes[y_pred.item()],
-                                  F.softmax(outputs[5][0]).tolist()[label.item()]))
+
+                plt.title('Output of {}° layer'
+                          .format(i + 1))
+
                 imshow(fig)
 
 def stats_feature_map(batch_size = 32, layer=3, train=False):
@@ -159,5 +158,5 @@ def stats_feature_map(batch_size = 32, layer=3, train=False):
 
 
 if __name__ == '__main__':
-    # visualize(n_images=5, id_batch=0, layer=3)
-    stats_feature_map(train=False)
+    visualize(n_images=1, id_batch=1, layer=None)
+    # stats_feature_map(train=False)
