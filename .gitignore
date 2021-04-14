@@ -31,7 +31,7 @@ env.bak/
 venv.bak/
 devenv/
 images/*
-/DaimlerBenchmark/
+/DaimlerBenchmark/*
 /data/
 /saved_models/
 /venv2/
